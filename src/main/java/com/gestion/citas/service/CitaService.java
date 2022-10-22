@@ -25,10 +25,28 @@ public class CitaService implements iCitaService {
 	@Autowired
 	private ICitaRepository repository;
 	
+	
 	@Override
 	public ResponseEntity<Cita> agendar(Cita cita) {
-		Cita save = repository.save(cita);
+				
+		Cita save = new Cita();
+		Date horarioDoctor = new Date();
+		
+		List<Cita> findByHorario = repository.findByHorario(cita.getHorario());
+		List<Cita> findByConsultorio = repository.findByConsultorio(cita.getConsultorio());
+		List<Cita> findByDoctor = repository.findByDoctor(cita.getDoctor());
+		
+		for(Cita c : findByDoctor) {
+			horarioDoctor = c.getHorario();
+		}
+		
+		if(!findByHorario.isEmpty() && !findByConsultorio.isEmpty() && !horarioDoctor.after(cita.getHorario())) {
+			save = repository.save(cita);
+			return ResponseEntity.ok(save);
+		}
+		
 		return ResponseEntity.ok(save);
+		
 	}
 
 	@Override
